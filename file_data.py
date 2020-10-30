@@ -36,7 +36,7 @@ class file_sort:
 
     path="";
     info={"File":[],"Size":[],"mtime":[],"atime":[],"ctime":[],"FileType":[]}
-    total="";#文件数量统计
+    total=0;#文件数量统计，默认是0
 
     def __init__(self,path="."):
         self.path=os.path.abspath(path) #因为Windows下读取文件的特性，这里必须使用绝对路径
@@ -58,8 +58,11 @@ class file_sort:
 
     def Get_Info(self):
         #获取目录下的所有文件信息赋值给字典info里，每个内容都是一个数组
-
-
+        if self.total != 0: #如果之前对于初始化获取了内容那么info所有内容都需要清空，包括total
+            for i in self.info.keys():
+                self.info[i]=[]
+             self.total=0 #这里需要把总数重置成0
+                
         self.path=os.path.abspath(self.path) #因为Windows下读取文件的特性，这里必须使用绝对路径
         os.chdir(self.path)
         self.info["File"]=os.listdir(self.path)#
