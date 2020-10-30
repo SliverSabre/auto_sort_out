@@ -1,26 +1,22 @@
 import os,shutil,time,re
 
 '''
-+ 这个模块是用来获取指定目录文件的文件信息，包括名称、大小、创建时间、最后访问时间以及最后修改时间。
-+ info。。。改成隐藏属性
-+ Demo
-import file_data
-f=file_data.file_sort("/home/xxzx/Downloads") #二者互斥，否则你的字典文件会很乱的
-#f.path="/home/xxzx/Downloads"
-f.sort_out_by_filetype()
+Author:Silver Sabre
+git: https://github.com/SilverSabre/auto_sort_out.git
 '''
 
 class file_sort:
 
     path="";
     info={"File":[],"Size":[],"mtime":[],"atime":[],"ctime":[],"FileType":[]}
-    total=0;#文件数量统计，默认是0
+    total=0; #文件数量统计，默认是0
     __file_type={"MS-Word":["doc","docx"],"MS-Excel":["xls","xlsx"],"Picture":["jpg","jpeg","png","gif","tiff"],"Photo-Raw":["NEF","nef","drw"],"PPT":["ppt","pptx"],"Program":["exe"],"Package":["rar","zip","tar.gz","tar.bz"]}
     #私有变量file_type,是包含了可以分类的文件，不需要更改，用于文件按照类型分类
     
     def __init__(self,path): #必选，要不然怕你出错
         self.path=os.path.abspath(path) #因为Windows下读取文件的特性，这里必须使用绝对路径
         self.Get_Info()#来来来，我先帮你们搞到信息，怎么排序就是你们的问题了
+        #当然，每一次调用获取函数Get_Info（）都会重置info和total里的内容，而且是调用path变量获取，后续也可以更改的，为了方便和安全最好强制您进行初始化
 
     def __get(self,file_name):
         #获取文件的信息，内置函数
@@ -29,8 +25,8 @@ class file_sort:
         self.info["mtime"].append(data[8]);
         self.info["Size"].append(data[6])
         self.info["ctime"].append(data[9]);
-        self.total=len(self.info["File"]); #目录下所有的文件数量，反正这里使用的太频繁了，我也烦了，直接给一个变量好了
-        for i in range(self.total): #反正为了方便，改成total
+        self.total=len(self.info["File"]);  #目录下所有的文件数量，反正这里使用的太频繁了，我也烦了，直接给一个变量好了，如果喜欢也可以单独拿出来看看多少个文件
+        for i in range(self.total):  #反正为了方便，改成total
             s=re.findall(r'\w+\.(\w+$)',self.info["File"][i])#这里因为表达是太长了 所以懒惰的我就重新赋值给变量s
             if len(s)==0: #为了数据统一,不然怕出现out of range什么的错误
                 s=[None]
@@ -38,7 +34,7 @@ class file_sort:
 
     def Get_Info(self):
         #获取目录下的所有文件信息赋值给字典info里，每个内容都是一个数组
-        if self.total != 0: #如果之前对于初始化获取了内容那么info所有内容都需要清空，包括total,不过有了self.path这个做引导就没问题了
+        if self.total != 0: #如果之前对于初始化获取了内容那么info所有内容都需要清空，包括total,不过有了self.path这个做引导就没问题了——反正都离不开Get_Info获取，这里处理好就好了
             for i in self.info.keys():
                 self.info[i]=[]
              self.total=0 #这里需要把总数重置成0
@@ -80,58 +76,16 @@ class file_sort:
         #根据文件的后缀分类，如果你的文件过于复杂最好别用，其实整个项目都建议慎用
         self.Get_Info();
         os.chdir(self.path)
-        for i in range(self.total):
-            for j in self.__file_type.keys():
-                if self.info["FileType"][i] in self.__file_type[j]:
+        for i in range(self.total):#所有文件遍历文件类型
+            for j in self.__file_type.keys():#获取所有的文件类型的key
+                if self.info["FileType"][i] in self.__file_type[j] : #第i号文件是否是属于文件见类型j里，是则移动或者创建文件夹，不是就算了
                     if os.path.isdir(str(j)):
                         shutil.move(self.info["File"][i],str(j))
                     else:
                         os.mkdir(str(j))
-                        shutil.move(self.info["File"][i],str(j))
-                        
-                else:
-                    if os.path.isdir("Unknow"):
-                        shutil.move(self.info["File"][i],"Unknow")
-                    else:
-                        os.mkdir("Unknow")
-                        shutil.move(self.info["File"][i],"Unknow")
+                        shutil.move(self.info["File"][i],str(j)) #到这里，第i号文件遍历了所有的文件类型，基本归类，剩下的就是未知类别的了
+                        #Github的排版难受，一会在来Unknow的特写吧
         return True
-                        
-        '''for i in range( self.total ):#太复杂繁琐，没有意义，准备重写
-            if self.info["FileType"][i] in ["doc","docx"]:
-                if os.path.isdir("word文档"):
-                    shutil.move(self.info["File"][i],"word文档")
-                else:
-                    os.mkdir("word文档")
-                    shutil.move(self.info["File"][i],"word文档")
-
-            elif self.info["FileType"][i] in ["xls","xlsx"]:
-                if os.path.isdir("电子表格"):
-                    shutil.move(self.info["File"][i],"电子表格")
-                else:
-                    os.mkdir("电子表格")
-                    shutil.move(self.info["File"][i],"电子表格")
-
-            elif self.info["FileType"][i] in ["ppt","pptx"]:
-                if os.path.isdir("演讲文稿"):
-                    shutil.move(self.info["File"][i],"演讲文稿")
-                else:
-                    os.mkdir("演讲文稿")
-                    shutil.move(self.info["File"][i],"演讲文稿")
-
-            elif self.info["FileType"][i] in ["c","cpp","py","java"]:
-                if os.path.isdir("源代码"):
-                    shutil.move(self.info["File"][i],"源代码")
-                else:
-                    os.mkdir("源代码")
-                    shutil.move(self.info["File"][i],"源代码")
-            else:
-                if os.path.isdir("未闻其名"):
-                    shutil.move(self.info["File"][i],"未闻其名")
-                else:
-                    os.mkdir("未闻其名")
-                    shutil.move(self.info["File"][i],"未闻其名")'''
-         return True
 
     def sort_out_by_key(self,Key):
         self.Get_Info()
