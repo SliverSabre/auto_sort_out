@@ -1,4 +1,4 @@
-import SortOutFiles as SOF
+import sort_out as SOF
 Dirs=SOF.file_sort("/home/xxx/Documents")
 #Dirs.path="/home/xxx/Music" #If you want to change path,do this
 Dirs.sort_out_by_time("ctime","all")
