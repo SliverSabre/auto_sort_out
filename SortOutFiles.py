@@ -1,3 +1,5 @@
+#Origin
+‘’‘
 import os,shutil,time,re,logging
 
 '''
@@ -100,7 +102,7 @@ class file_sort:
                         shutil.move(self.info["File"][i],str(j))
 
         return True
-
+ 
     def sort_out_by_key(self,Key):
         self.Get_Info()
         os.chdir(self.path)
@@ -112,3 +114,4 @@ class file_sort:
         return True
 
       # End of Class file_sort
+‘’‘
