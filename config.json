@@ -5,7 +5,7 @@
 		"文字/杂志":["txt","md","pdf"],
 		"Word文档":["doc","docx"],
 		"电子表格":["xls","xlsx"],
-		"画大饼PPT":["ppt","pptx"]，
+		"画大饼PPT":["ppt","pptx"],
 		"FPS（迫真）":["avi","mp4","rmvb"]
 	},
 	"Forbidden_Files":["ini","dll","conf","cnf","json","html"],
