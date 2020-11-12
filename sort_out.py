@@ -1,10 +1,4 @@
-import os,shutil,time,re
-
-'''
-Author:Silver Sabre
-git clone https://github.com/SilverSabre/auto_sort_out.git
-用来分类整理文件
-'''
+import os,shutil,time,re,json
 
 class Sort_Out:
 
@@ -14,22 +8,14 @@ class Sort_Out:
     __file_type={};
     __forbidden_file=[];#config.json中定义
     __forbidden_dir =[];#config.json中定义
-    '''
-    + 私有变量file_type,是包含了可以分类的文件，不需要更改，用于文件按照类型分类
-    + __forbidden_file,__forbidden_dir 分别表示当目录下和绝对目录中包含敏感词则停止分类
-    + 以上三类准备更改为配置文件，方便用户自己定义，在初始化时读取
-
-    #__log=
-
-    #'''
 
     def __init__(self,path): #必选，要不然怕你出错
-        self.path=os.path.abspath(path) #因为Windows下读取文件的特性，这里必须使用绝对路径
-        self.Get_Info()
         '''
         来来来，我先帮你们搞到信息，怎么排序就是你们的问题了
         当然，每一次调用获取函数Get_Info（）都会重置info和total里的内容，而且是调用path变量获取，后续也可以更改的，为了方便和安全最好强制您进行初始化
         '''
+        self.path=os.path.abspath(path) #因为Windows下读取文件的特性，这里必须使用绝对路径
+        self.Get_Info()
 
     def __config(self):
         if not os.path.isfile("config.json"):
@@ -75,11 +61,10 @@ class Sort_Out:
         #先检查
         #获取目录下的所有文件信息赋值给字典info里，每个内容都是一个数组
         if self.total != 0:
-
-       #如果之前对于初始化获取了内容那么info所有内容都需要清空，包括total,不过有了self.path这个做引导就没问题了——反正都离不开Get_Info获取，这里处理好就好了
+            #如果之前对于初始化获取了内容那么info所有内容都需要清空，包括total,不过有了self.path这个做引导就没问题了——反正都离不开Get_Info获取，这里处理好就好了
             for i in self.info.keys():
                 self.info[i]=[]
-                self.total=0 #这里需要把总数重置成0
+            self.total=0 #这里需要把总数重置成0
         #然后接下来就是获取数据
         self.path=os.path.abspath(self.path) #因为Windows下读取文件的特性，这里必须使用绝对路径
         os.chdir(self.path)
@@ -134,11 +119,11 @@ class Sort_Out:
                     break;#找到了就不要再搞了，尽量跳出循环
         for i in range(self.total):
             if os.path.isfile(self.info["File"][i]):#剩下的文件如果还在，那就是未知的类别
-                self.__move("未闻其名",i)
-                print(str(self.info["File"][i])+"has been moved to 未闻其名")
+                self.__move("Unknown",i)
+                print(str(self.info["File"][i])+"has been moved to [Unknown]")
         return True
 
-    def sort_out_by_key(self,Key):
+    def sort_out_by_key(self,Key):#准备更改为数组，可以添加多个关键词
         self.Get_Info()
         os.chdir(self.path)
         for i in range(self.total):
@@ -150,8 +135,8 @@ class Sort_Out:
 
     def __check(self):
             '''
-            安全检查，只要你的目录在禁止的目录里，那就禁止分类;目录中含有特殊文件也禁止分类;self.__forbidden_dir  self.__forbidden_file 分别是禁止的目录和文件的集合，私有变量，你不许乱改
-            Type默认为无，改成reset则跳过对sort_out_log的文件检查，用于文件还原时的安全性检查
+            安全检查，只要你的目录在禁止的目录里，那就禁止分类;目录中含有特殊文件也禁止分类;
+            Type
             '''
             os.chdir(self.path)
             #self.Get_Info()#在Get_Info()中已经使用了，就没必要再一次引用了
@@ -193,7 +178,7 @@ class Sort_Out:
         '''
         记录日志，名称为sort_out_log
         每条日志格式为：
-            日期 时间 源文件 移动到的文件夹 ;[回车]
+            [日期 时间] 源文件 移动到的文件夹 ;[回车]
         '''
         os.chdir(self.path)
         t=time.localtime(time.time())
@@ -217,8 +202,6 @@ class Sort_Out:
                 print("--------------------\n**Warnning!**\nThis directory has been sorted out,can not sort it out agin except recover it.\n--------------------")
                 return True
         return False
-
-
 
     def recover(self):#恢复每一个目录下包含sort_out_log的文件夹恢复
         os.chdir(self.path)
