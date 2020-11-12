@@ -1,0 +1,13 @@
+{
+	"File_Type":{
+		"Album":["jpg","JPG","png","PNG","gif","jpeg","JPEG","tiff"],
+		"Camera-RAW":["nef","NEF"],
+		"MS-Word/PDF":["pdf","doc","docx"],
+		"Excel":["xls","xlsx"],
+		"Data":["sql"],
+		"MS-PPT":["ppt","pptx"],
+		"Research":["rmvb","avi","mp4"]
+	},
+	"Forbidden_Files":["ini","dll","conf","cnf","exe","out"],
+	"Forbidden_Dirs":["Program Files","Windows","System32","Do_Not_Touch_it"]
+}
