@@ -1,11 +1,10 @@
 import os,shutil,time,re,json
 
 class Sort_Out:
-
     path="";
     info={"File":[],"Size":[],"mtime":[],"atime":[],"ctime":[],"FileType":[]}
     total=0; #文件数量统计，默认是0
-    __file_type={};
+    __file_type={};#config.json中定义
     __forbidden_file=[];#config.json中定义
     __forbidden_dir =[];#config.json中定义
 
@@ -58,7 +57,7 @@ class Sort_Out:
             return False
         if self.__is_log_exsit():
             return False
-        #先检查
+        #先检查，出错直接跳出，这样免得每一次都要调用检查
         #获取目录下的所有文件信息赋值给字典info里，每个内容都是一个数组
         if self.total != 0:
             #如果之前对于初始化获取了内容那么info所有内容都需要清空，包括total,不过有了self.path这个做引导就没问题了——反正都离不开Get_Info获取，这里处理好就好了
