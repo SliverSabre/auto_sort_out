@@ -1,0 +1,12 @@
+{
+	"File_Type":{
+		"图片":["jpg","png","JPG","PNG","gif","jpeg","JPEG"],
+		"数码相机底片":["nef","NEF"],
+		"文字/杂志":["txt","md","pdf"],
+		"Word文档":["doc","docx"],
+		"电子表格":["xls","xlsx"],
+		"画大饼PPT":["ppt","pptx"]
+	},
+	"Forbidden_Files":["ini","dll","conf","cnf","json","html"],
+	"Forbidden_Dirs":["Program Files","etc","bin","usr","Program Files(x86)","cache"]
+}
