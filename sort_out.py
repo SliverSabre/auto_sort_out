@@ -1,4 +1,4 @@
-import os,shutil,time,re,json
+import os,shutil,time,re,json,sys
 
 class Sort_Out:
     path="";
@@ -16,7 +16,8 @@ class Sort_Out:
         self.path=os.path.abspath(path) #因为Windows下读取文件的特性，这里必须使用绝对路径
         self.Get_Info()
 
-    def __config(self):
+    def __config(self): #这个是用来检测配置文件的，丢失了就禁止使用了哦～
+        os.chdir(os.path.abspath(sys.path[0]))#获取脚本所在的目录，需要sys模块
         if not os.path.isfile("config.json"):
             print("错误！config.json文件丢失！")
             return False
@@ -53,9 +54,9 @@ class Sort_Out:
             self.info["FileType"].append(s)
 
     def Get_Info(self):
-        if not self.__config():
+        if not self.__config(): #没有配置文件还搞什么文件分类啊！
             return False
-        if self.__is_log_exsit():
+        if self.__is_log_exist():
             return False
         #先检查，出错直接跳出，这样免得每一次都要调用检查
         #获取目录下的所有文件信息赋值给字典info里，每个内容都是一个数组
@@ -82,6 +83,7 @@ class Sort_Out:
         '''
         '''不需要检查'''
         self.Get_Info();
+        os.chdir(self.path)
         t=[];
         for i in self.info[str(T_type)]:
             t.append(time.localtime(i));
@@ -122,15 +124,17 @@ class Sort_Out:
                 print(str(self.info["File"][i])+"has been moved to [Unknown]")
         return True
 
-    def sort_out_by_key(self,Key):#准备更改为数组，可以添加多个关键词
+    def sort_out_by_key(self,Key=[]):#现在是数组了键词
         self.Get_Info()
         os.chdir(self.path)
         for i in range(self.total):
-            if re.search(r""+str(Key),self.info["File"][i]) != None:
-                if not os.path.isdir(str(Key)):
-                    os.mkdir(str(Key))
-                    shutil.move(self.info["File"][i],str(Key))
-        return True
+            for k in Key:
+                if re.search(r""+str(k),self.info["File"][i]) != None:
+                    k=os.path.abspath(k)
+                    self.__move(str(k),a)
+                    message=str(name)+" "+str(k)#记录日志
+                    self.__mk_log(message)
+        return True;
 
     def __check(self):
             '''
@@ -141,18 +145,18 @@ class Sort_Out:
             #self.Get_Info()#在Get_Info()中已经使用了，就没必要再一次引用了
             self.path=os.path.abspath(self.path)
             if self.total==0:
-                print("当前目录下没有文件可供分类整理！")
+                print("当前目录下没有文件可供分类整理^_^")
                 return False
             else:
                 return True
-            for i in self.__forbidden_dir : #__safe_guard_dir里全是敏感词，碰到了就直接不允许
+            for i in self.__forbidden_dir : #__forbidden_dir里全是敏感词，碰到了就直接不允许
                 if re.search(r""+str(i),self.path) != None:
                     print("禁止在包含"+str(i)+"类型的文件的目录中进行分类整理！")
                     return False
                 else:
                     return True
             for i in range(self.total):
-                if str(self.info["FileType"][i][0]) in self.__forbidden_file:
+                if str(self.info["FileType"][i][0]) in self.__forbidden_file:#只要文件类型在禁止的范围内就禁止使用了！
                     print("禁止在包含目录["+str(i)+"]的目录中进行分类整理！")
                     return False
                 else:
@@ -160,6 +164,9 @@ class Sort_Out:
 
     def __move(self,dirs,num):
             #受够了，直接写一个文件移动的函数，dirs就是目标目录，而num是文件编号，不是文件名
+            if self.info["File"][num]=="sort_out_log":
+                print("sort_out_log文件无需处理")
+                return True
             if os.path.isdir(dirs):
                 shutil.move(str(self.info["File"][num]),str(dirs))
                 print(str(self.info["File"][num])+"has been moved to "+str(dirs))
@@ -168,7 +175,7 @@ class Sort_Out:
                 shutil.move(str(self.info["File"][num]),str(dirs))
                 print(str(self.info["File"][num])+"has been moved to "+str(dirs))
             dirs=os.path.abspath(dirs)
-            name=os.path.abspath(self.info["File"][num])
+            name=self.info["File"][num]
             message=str(name)+" "+str(dirs)#记录日志
             self.__mk_log(message)
             return True
@@ -192,47 +199,48 @@ class Sort_Out:
         for path,dirs,files in os.walk(self.path):
             if "sort_out_log" in files:
                 path=os.path.abspath(path)
-                url.insert(0,path)
+                #path=os.path.join(path,"sort_out_log")#我个憨憨，当时记录的是有sor_out_log文件的目录啊！！
+                url.insert(0,path) #最后发现的内容恰恰是最前面的,这样还原的话就是有内而外
         return url
 
     def __is_log_exist(self):
         for path,dirs,files in os.walk(self.path):
             if "sort_out_log" in files:
-                print("--------------------\n**Warnning!**\nThis directory has been sorted out,can not sort it out agin except recover it.\n--------------------")
-                return True
+                print("--------------------\n**警告！！！**\n哎呀，目录下可是曾经分类过的，除非您想恢复否则将禁止文件整理分类。\n--------------------")
+                return True #找到就退出，毕竟就是为了检测，不要浪费太多性能去找到每一个文件
         return False
 
     def recover(self):#恢复每一个目录下包含sort_out_log的文件夹恢复
         os.chdir(self.path)
-        if not self.__check():
-            return False
+        #if not self.__check():#check仅仅发生在getinfo动作里，否则肯定无法通过
+        #    return False
         if self.__is_log_exist():
-            path=self.__log_path(); #返回log所在的目录地址 不是ture or false游戏
+            path=self.__log_path(); #返回log所在的目录地址 不是ture or false游戏;
+            print(path)
         else:
             print("目录中不包含sort_out_log文件，无法/无需还原。")
             return False
         for u in path:
-            os.chdir(str(u))
+            os.chdir(u)#u的变量的唯一作用就是进入这个目录吧。。。
+            print("当前目录："+str(u))
             with open("sort_out_log","r") as f:
                 for lines in f.readlines():
                     lines=lines.split(" ")
                     name=os.path.join(str(lines[3]),str(lines[2]))
-                    name=os.path.abspath(name)
-                    #u=os.path.abspath(u)
                     if os.path.isfile(name):#如果这个目录下有这个文件则移动，否则就不要管它了
                         shutil.move(str(name),str(u))
                         print(str(name)+"has been moved to "+str(u))
             with open("sort_out_log","r") as f:
                 for lines in f.readlines():
                     lines=lines.split(" ")
-                    #name=os.path.abspath(str(lines[3]))
+                    name=str(lines[3])#我想我当时就是在偷懒，所以省略lines[3]的写法改成了name
                     if os.path.isdir(name):#如果有这个目录就删除，没有就不要管它了
                         os.removedirs(name)
                         print("The directory "+str(name)+"has been deleted.")
             if os.path.isfile("sort_out_log"):
                 os.remove("sort_out_log")
-                print("The file "+str(u)+"|"+"sort_out_log has been deleted.")
-        print("Complete!")
+                print("The file "+str(lines[3])+"/"+"sort_out_log has been deleted.")
+        print("恢复完成！\n")
         return True
 
       # End of Class Sort_Out.
