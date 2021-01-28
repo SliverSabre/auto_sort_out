@@ -142,7 +142,6 @@ class Sort_Out:
             Type
             '''
             os.chdir(self.path)
-            #self.Get_Info()#在Get_Info()中已经使用了，就没必要再一次引用了
             self.path=os.path.abspath(self.path)
             if self.total==0:
                 print("当前目录下没有文件可供分类整理^_^")
@@ -212,9 +211,7 @@ class Sort_Out:
         return False
 
     def recover(self):#恢复每一个目录下包含sort_out_log的文件夹恢复
-        os.chdir(self.path)
-        #if not self.__check():#check仅仅发生在getinfo动作里，否则肯定无法通过
-        #    return False
+        os.chdir(self.path) 
         if self.__is_log_exist():
             path=self.__log_path(); #返回log所在的目录地址 不是ture or false游戏;
             print(path)
@@ -238,7 +235,7 @@ class Sort_Out:
                     if os.path.isdir(name):#如果有这个目录就删除，没有就不要管它了
                         os.removedirs(name)
                         print("The directory "+str(name)+"has been deleted.")
-            if os.path.isfile("sort_out_log"):
+            if os.path.isfile("sort_out_log"): #删除sort_out_log文件，恢复
                 os.remove("sort_out_log")
                 print("The file "+str(lines[3])+"/"+"sort_out_log has been deleted.")
         print("恢复完成！\n")
