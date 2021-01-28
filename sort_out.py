@@ -176,7 +176,7 @@ class Sort_Out:
                 print(str(self.info["File"][num])+"has been moved to "+str(dirs))
             dirs=os.path.abspath(dirs)
             name=self.info["File"][num]
-            message=str(name)+" "+str(dirs)#记录日志
+            message=str(name)+";"+str(dirs)#记录日志
             self.__mk_log(message)
             return True
 
@@ -184,12 +184,13 @@ class Sort_Out:
         '''
         记录日志，名称为sort_out_log
         每条日志格式为：
-            [日期 时间] 源文件 移动到的文件夹 ;[回车]
+            [日期  时间];源文件;移动到的文件夹;[回车]
+            当然，这是修改后的情况了。
         '''
         os.chdir(self.path)
         t=time.localtime(time.time())
-        s_t="["+str(t[0])+"-"+str(t[1])+"-"+str(t[2])+" "+str(t[3])+":"+str(t[4])+":"+str(t[5])+"] "
-        message=s_t+message+" ;\n"
+        s_t="["+str(t[0])+"-"+str(t[1])+"-"+str(t[2])+"  "+str(t[3])+":"+str(t[4])+":"+str(t[5])+"];"
+        message=s_t+message+";\n"
         with open("sort_out_log","a") as f:
             f.writelines(message)
         return True
@@ -225,14 +226,14 @@ class Sort_Out:
             print("当前目录："+str(u))
             with open("sort_out_log","r") as f:
                 for lines in f.readlines():
-                    lines=lines.split(" ")
+                    lines=lines.split(";")
                     name=os.path.join(str(lines[3]),str(lines[2]))
                     if os.path.isfile(name):#如果这个目录下有这个文件则移动，否则就不要管它了
                         shutil.move(str(name),str(u))
                         print(str(name)+"has been moved to "+str(u))
             with open("sort_out_log","r") as f:
                 for lines in f.readlines():
-                    lines=lines.split(" ")
+                    lines=lines.split(";")
                     name=str(lines[3])#我想我当时就是在偷懒，所以省略lines[3]的写法改成了name
                     if os.path.isdir(name):#如果有这个目录就删除，没有就不要管它了
                         os.removedirs(name)
