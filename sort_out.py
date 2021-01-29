@@ -211,34 +211,61 @@ class Sort_Out:
         return False
 
     def recover(self):#恢复每一个目录下包含sort_out_log的文件夹恢复
-        os.chdir(self.path) 
-        if self.__is_log_exist():
-            path=self.__log_path(); #返回log所在的目录地址 不是ture or false游戏;
-            print(path)
-        else:
-            print("目录中不包含sort_out_log文件，无法/无需还原。")
-            return False
+        '''
+        + 由于日志文件变更了，原来的四个数组变成了三个，所以要更改。和原来边界比来看都减去1。
+        + lines数组最大编号应该为2
+        + lines[0]:时间 lines[1]:文件名称 lines[2]:复制到的目录
+        '''
+        os.chdir(self.path)  
+        msg=[]
+        path=self.__log_path() #不要废话，使用recover了应该是有需要的
+        if not len(path): #如果path长度为0，那就是说根本没有文件，不可以执行recover的功能。当然，会浪费运算力，所以要确定自己是否需要执行这个操作。
+            print("对不起，这里没有需要恢复的日志")
+            return Flase
+            
+        '''
+        问题在下面的部分：lines数组更改为三个，最大边界是2。
+        '''
         for u in path:
-            os.chdir(u)#u的变量的唯一作用就是进入这个目录吧。。。
-            print("当前目录："+str(u))
+            os.chdir(u) #u的变量的作用除了确定当前目录外，还是文件恢复制定移动到的位置
             with open("sort_out_log","r") as f:
                 for lines in f.readlines():
                     lines=lines.split(";")
-                    name=os.path.join(str(lines[3]),str(lines[2]))
-                    if os.path.isfile(name):#如果这个目录下有这个文件则移动，否则就不要管它了
+                    name=os.path.join(str(lines[2]),str(lines[1])) #我当时就是在偷懒，所以省略lines[x]的写法改成了name
+                    if os.path.isfile(name): #如果这个目录下有这个文件则移动，否则就不要管它了
                         shutil.move(str(name),str(u))
                         print(str(name)+"has been moved to "+str(u))
+                    else:
+                        print("文件"+str(name)+"可能被移动或者删除了。")
+                        cm=input("继续恢复么？（n：中止任务，其余均为继续）")
+                       
+                        if cm='n':
+                            print("恢复任务被用户中止")
+                            msg.append(name)
+                            break
+                            exit()    
+                        else:
+                            continue
+            #到这里移动了所有日志里存在的文件
+            
             with open("sort_out_log","r") as f:
                 for lines in f.readlines():
                     lines=lines.split(";")
-                    name=str(lines[3])#我想我当时就是在偷懒，所以省略lines[3]的写法改成了name
+                    name=str(lines[2])
                     if os.path.isdir(name):#如果有这个目录就删除，没有就不要管它了
                         os.removedirs(name)
-                        print("The directory "+str(name)+"has been deleted.")
+                        print("目录 "+str(name)+" 被删除。")
             if os.path.isfile("sort_out_log"): #删除sort_out_log文件，恢复
                 os.remove("sort_out_log")
-                print("The file "+str(lines[3])+"/"+"sort_out_log has been deleted.")
-        print("恢复完成！\n")
+                print("日志 "+str(lines[2])+"/"+"sort_out_log 被删除。")
+             #到这里，清理了不想要目录与日志文件
+        
+        if not len(msg):
+            print()"以下文件可能被删除或者移动而未能恢复")
+            print("---------------------------------------------------")
+            for i in msg:
+                print("文件：" +str(i))
+        print("恢 复 完 成")
         return True
 
       # End of Class Sort_Out.
