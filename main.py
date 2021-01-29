@@ -23,5 +23,4 @@ while True:
   else:
     print("错误！未发现指令，可以输入q后回车退出。")
     continue
-print("分类完成，目录下的sort_out_log文件请勿删除，以便日后恢复。")
 f.close()
