@@ -239,7 +239,7 @@ class Sort_Out:
                         print("文件"+str(name)+"可能被移动或者删除了。")
                         cm=input("继续恢复么？（n：中止任务，其余均为继续）")
                        
-                        if cm='n':
+                        if cm=='n':
                             print("恢复任务被用户中止")
                             msg.append(name)
                             break
@@ -261,11 +261,12 @@ class Sort_Out:
              #到这里，清理了不想要目录与日志文件
         
         if not len(msg):
-            print()"以下文件可能被删除或者移动而未能恢复")
+            print("以下文件可能被删除或者移动而未能恢复");
             print("---------------------------------------------------")
             for i in msg:
                 print("文件：" +str(i))
-        print("恢 复 完 成")
+        print("------------------------------------------------------")
+        print("恢复完成")
         return True
 
       # End of Class Sort_Out.
